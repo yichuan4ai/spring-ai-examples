@@ -59,7 +59,7 @@ echo "---"
 
 # 测试智能模型选择
 echo "🤖 测试智能模型选择..."
-curl -X POST "$BASE_URL/api/model-switching/smart-selection" \
+curl -X POST "$BASE_URL/api/model-selecting/smart-selection" \
   -H "Content-Type: application/json" \
   -d '{"input": "请帮我分析这段 Java 代码的性能问题"}' \
   -s | jq '{"detectedTaskType": .detectedTaskType, "selectedModel": .selectedModel}'
@@ -68,7 +68,7 @@ echo "---"
 
 # 测试获取可用模型
 echo "📋 获取可用模型信息..."
-curl -X GET "$BASE_URL/api/model-switching/available-models" \
+curl -X GET "$BASE_URL/api/model-selecting/available-models" \
   -s | jq '.models | keys'
 echo
 echo "---"

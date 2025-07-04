@@ -56,61 +56,6 @@ public class ModelSelectionService {
     }
 
     /**
-     * 对比不同模型提供商的响应
-     */
-    public Map<String, Object> compareProviders(String prompt) {
-        Map<String, Object> results = new ConcurrentHashMap<>();
-        Map<String, CompletableFuture<Map<String, Object>>> futures = new HashMap<>();
-
-        // 并行执行多个模型的请求
-        for (Map.Entry<String, ChatClient> entry : chatClients.entrySet()) {
-            String modelType = entry.getKey();
-            ChatClient client = entry.getValue();
-
-            CompletableFuture<Map<String, Object>> future = CompletableFuture.supplyAsync(() -> {
-                try {
-                    long startTime = System.currentTimeMillis();
-                    String response = client.prompt()
-                            .user(prompt)
-                            .call()
-                            .content();
-                    long duration = System.currentTimeMillis() - startTime;
-
-                    return Map.of(
-                            "response", response,
-                            "duration", duration,
-                            "responseLength", response.length(),
-                            "status", "success",
-                            "description", modelDescriptions.get(modelType)
-                    );
-                } catch (Exception e) {
-                    return Map.of(
-                            "error", e.getMessage(),
-                            "status", "failed",
-                            "description", modelDescriptions.get(modelType)
-                    );
-                }
-            });
-
-            futures.put(modelType, future);
-        }
-
-        // 等待所有请求完成
-        futures.forEach((modelType, future) -> {
-            try {
-                results.put(modelType, future.get());
-            } catch (Exception e) {
-                results.put(modelType, Map.of(
-                        "error", "Request timeout or failed: " + e.getMessage(),
-                        "status", "failed"
-                ));
-            }
-        });
-
-        return results;
-    }
-
-    /**
      * 智能任务路由 - 根据输入内容自动选择最合适的模型
      */
     public Map<String, Object> smartTaskRouting(String input) {
